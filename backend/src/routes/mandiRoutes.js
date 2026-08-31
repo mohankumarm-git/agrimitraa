@@ -1,0 +1,1 @@
+const express = require('express'); const router = express.Router(); const { getPrices } = require('../controllers/mandiController'); const { protect } = require('../middleware/auth'); router.get('/', protect, getPrices); module.exports = router;

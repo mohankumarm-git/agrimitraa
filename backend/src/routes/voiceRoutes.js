@@ -1,0 +1,1 @@
+const express = require('express'); const router = express.Router(); const { query } = require('../controllers/voiceController'); const { protect } = require('../middleware/auth'); router.post('/query', protect, query); module.exports = router;

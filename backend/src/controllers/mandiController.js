@@ -1,0 +1,1 @@
+const MandiPrice = require('../models/MandiPrice'); exports.getPrices = async (req, res, next) => { try { const { district } = req.query; const query = district ? { district } : {}; const prices = await MandiPrice.find(query).sort('-date'); res.status(200).json({ success: true, data: prices }); } catch(err) { next(err); } };
