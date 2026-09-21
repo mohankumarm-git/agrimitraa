@@ -58,7 +58,6 @@ Return the result in structured JSON if the current Gemini SDK supports structur
     const response = await result.response;
     let text = response.text();
     
-    // Attempt to parse JSON to ensure it's robust
     if (text.startsWith('```json')) {
       text = text.replace(/```json\n?/, '').replace(/```\n?$/, '');
     } else if (text.startsWith('```')) {
@@ -67,9 +66,8 @@ Return the result in structured JSON if the current Gemini SDK supports structur
     text = text.trim();
 
     try {
-      JSON.parse(text); // Verify it's valid JSON
+      JSON.parse(text); 
     } catch (e) {
-      // If not valid JSON, wrap it in our expected structure
       text = JSON.stringify({
         crop: "Unknown",
         condition: text.substring(0, 100) + "...",
@@ -83,21 +81,19 @@ Return the result in structured JSON if the current Gemini SDK supports structur
   } catch (error) {
     console.error("Disease Detection Gemini Error:", error);
     
-    if (error.status) console.error("HTTP/API status:", error.status);
-    if (error.response) console.error("Gemini response status:", error.response.status);
-
     const errorStr = error.toString().toLowerCase();
     
     if (errorStr.includes("not found") && errorStr.includes("models/")) {
       throw new Error("AI model configuration error. Please check the Gemini model settings.");
-    } else if (errorStr.includes("fetch") || errorStr.includes("network") || errorStr.includes("timeout")) {
+    } else if (errorStr.includes("api key") || errorStr.includes("unauthorized") || errorStr.includes("forbidden") || errorStr.includes("401") || errorStr.includes("403")) {
+      throw new Error("AI service configuration needs attention. (Invalid API Key)");
+    } else if (errorStr.includes("image") || errorStr.includes("payload") || errorStr.includes("too large") || errorStr.includes("413")) {
+      throw new Error("We couldn't process this image. The file might be too large.");
+    } else if (errorStr.includes("network") || errorStr.includes("timeout") || errorStr.includes("econnrefused")) {
       throw new Error("Unable to connect to the AI service. Please check your internet connection and try again.");
-    } else if (errorStr.includes("api key") || errorStr.includes("unauthorized") || errorStr.includes("forbidden") || error.status === 401 || error.status === 403) {
-      throw new Error("AI service configuration needs attention.");
-    } else if (errorStr.includes("image") || errorStr.includes("payload")) {
-      throw new Error("We couldn't process this image. Please upload a clear photo of the affected leaf.");
     } else {
-      throw new Error("Analysis couldn't be completed right now. Please try again.");
+      // Return the raw error message to the frontend so we can debug it properly!
+      throw new Error("AI Error: " + error.message);
     }
   }
 };
