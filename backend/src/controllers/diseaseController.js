@@ -10,18 +10,24 @@ exports.analyze = async (req, res, next) => {
 
     const resultText = await analyzeDisease(imageBase64);
 
-    // Save to log
-    const log = await DiseaseLog.create({
-      user: req.user.id,
-      imageRef: 'base64_omitted_for_storage', // For prod, upload to S3 and save URL.
-      rawResponse: resultText
-    });
+    let logId = null;
+    try {
+      // Save to log
+      const log = await DiseaseLog.create({
+        user: req.user.id,
+        imageRef: 'base64_omitted_for_storage',
+        rawResponse: resultText
+      });
+      logId = log._id;
+    } catch (dbErr) {
+      console.warn("Could not save disease log to DB (MongoDB might be offline). Returning analysis anyway.");
+    }
 
     res.status(200).json({
       success: true,
       data: {
         analysis: resultText,
-        logId: log._id
+        logId: logId
       }
     });
 
