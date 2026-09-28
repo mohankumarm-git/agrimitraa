@@ -3,7 +3,7 @@ const { GoogleGenerativeAI } = require('@google/generative-ai');
 exports.analyzeDisease = async (imageBase64) => {
   const apiKey = process.env.GEMINI_API_KEY;
   const hasApiKey = !!apiKey;
-  const modelName = 'gemini-2.5-flash';
+  const modelName = 'gemini-1.5-flash';
   const mimeType = "image/jpeg";
   const imageSize = imageBase64 ? imageBase64.length : 0;
 
@@ -104,7 +104,7 @@ exports.answerVoiceQuery = async (queryText) => {
     return "MOCK_RESPONSE: Moisture is important when applying fertilizer.";
   }
   const genAI = new GoogleGenerativeAI(apiKey);
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+  const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' });
   const result = await model.generateContent(`You are AgriMitra, an AI assistant for farmers in Tamil Nadu. Answer the following question regarding farming, crops, or weather. Provide a short, actionable response in Tamil. Question: ${queryText}`);
   const response = await result.response;
   return response.text();
